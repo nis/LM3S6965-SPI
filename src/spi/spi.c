@@ -25,6 +25,48 @@
 
 /*****************************    Defines    *******************************/
 
+// PIN Defines
+#define SSI_CLK	2
+#define SSI_SS 	3
+#define SSI_RX	4
+#define SSI_TX 	5
+
+// The following defines is used in the Stellaris example project for SSI
+// They might be necessary.
+
+#define SYSCTL_PERIPH_SSI0      0x10000010  // SSI 0
+
+//*****************************************************************************
+//
+// The following are defines for the SSI register offsets.
+//
+//*****************************************************************************
+#define SSI_O_CR0               0x00000000  // SSI Control 0
+#define SSI_O_CR1               0x00000004  // SSI Control 1
+#define SSI_O_DR                0x00000008  // SSI Data
+#define SSI_O_SR                0x0000000C  // SSI Status
+#define SSI_O_CPSR              0x00000010  // SSI Clock Prescale
+#define SSI_O_IM                0x00000014  // SSI Interrupt Mask
+#define SSI_O_RIS               0x00000018  // SSI Raw Interrupt Status
+#define SSI_O_MIS               0x0000001C  // SSI Masked Interrupt Status
+#define SSI_O_ICR               0x00000020  // SSI Interrupt Clear
+#define SSI_O_DMACTL            0x00000024  // SSI DMA Control
+
+//*****************************************************************************
+//
+// The following are defines for the bit fields in the SSI_O_CR1 register.
+//
+//*****************************************************************************
+#define SSI_CR1_EOT             0x00000010  // End of Transmission
+
+//*****************************************************************************
+//
+// The following are defines for the bit fields in the SSI_O_DMACTL register.
+//
+//*****************************************************************************
+#define SSI_DMACTL_TXDMAE       0x00000002  // Transmit DMA Enable
+#define SSI_DMACTL_RXDMAE       0x00000001  // Receive DMA Enable
+
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
@@ -38,23 +80,49 @@ void init_spi()
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	
+	// SYSCTL_RCGC1_R 	== RCGC1
+	// SSI0_CR1_R 		== SSICR1
+	// SSI0_CPSR_R 		== SSICPSR
+	// SSI0_CR0_R		== SSICR0
+	
+	// 1 Disable SSI
+		// Clear SSI bit in SSICR1
+	
+	// 2 Select master or slave
+		// For master operations, set the SSICR1 register to 0x0000.0000
+			
+	// 3 Configure clock
+		// 50*10^6/(4*(1+12))
+		// SysClock * 10^6 / (CPSDVSR * (1 + SCR))
+		// (50 * (10^6)) / (4 * (1 + 9)) = 1 250 000 bit/sec
+			
+		// SSICPSR = CPSDVSR = 0x4
+		
+	// 4 Write to SSICR0:
+		// SCR: 	[15:8]
+		// SPH: 	[7]
+		// SPO:		[6]
+		// FRF:		[5:4] FrameFormat, 0x0 for Freescale
+		// DSS:		[3:0] Datasize
+			
+	// 5 Enable SSI
+			// Set SSI bit in SSICR1
+			
 	INT8U dummy;
-	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOD | SYSCTL_RCGC2_GPIOG | SYSCTL_RCGC2_GPIOF; // Enable the port for the red LED
+	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOA; // Enable port 
 	dummy = SYSCTL_RCGC2_R;
 
-	SET_BIT(GPIO_PORTD_DIR_R, RED_LED_PIN);
-	SET_BIT(GPIO_PORTD_DEN_R, RED_LED_PIN);
-	SET_BIT(GPIO_PORTG_DIR_R, GREEN_LED_PIN);
-	SET_BIT(GPIO_PORTG_DEN_R, GREEN_LED_PIN);
-	SET_BIT(GPIO_PORTG_DIR_R, YELLOW_LED_PIN);
-	SET_BIT(GPIO_PORTG_DEN_R, YELLOW_LED_PIN);
-	SET_BIT(GPIO_PORTF_DIR_R, STATUS_LED_PIN);
-	SET_BIT(GPIO_PORTF_DEN_R, STATUS_LED_PIN);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_TX);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_TX);
 
-	led_red_off();
-	led_yellow_off();
-	led_green_off();
-	led_status_off();
+
 }
 
 /****************************** End Of Module *******************************/
