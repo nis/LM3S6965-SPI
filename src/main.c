@@ -54,15 +54,14 @@ void vUserTask1(void *pvParameters) {
 }
 
 /**
- * Simple task that increments a counter
+ * Alive task. Blinks the status LED 4 at 4Hz.
  */
-// void vUserTask2(void *pvParameters) {
-// 	int count = 0;
-// 	while (1) {
-// 		count++;
-// 		vTaskDelay(101) ;
-// 	}
-// }
+void vUserTask2(void *pvParameters) {
+	while (1) {
+		led_status_toggle();
+		vTaskDelay(250) ;
+	}
+}
 
 /**
  * Program entry point 
@@ -74,8 +73,8 @@ int main(void) {
 	 * Start the tasks defined within this file/specific to this demo. 
 	 */
 	xTaskCreate( vUserTask1, ( signed portCHAR * ) "Task1", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-	//xTaskCreate( vUserTask2, ( signed portCHAR * ) "Task2", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 
+	xTaskCreate( vUserTask2, ( signed portCHAR * ) "Task2", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	/* 
 	 * Start the scheduler. 
 	 */
