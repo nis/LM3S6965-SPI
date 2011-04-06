@@ -31,41 +31,44 @@
 #define SSI_RX	4
 #define SSI_TX 	5
 
+// Pins in register
+#define SSE_BIT 1
+
 // The following defines is used in the Stellaris example project for SSI
 // They might be necessary.
 
-#define SYSCTL_PERIPH_SSI0      0x10000010  // SSI 0
+//#define SYSCTL_PERIPH_SSI0      0x10000010  // SSI 0
 
 //*****************************************************************************
 //
 // The following are defines for the SSI register offsets.
 //
 //*****************************************************************************
-#define SSI_O_CR0               0x00000000  // SSI Control 0
-#define SSI_O_CR1               0x00000004  // SSI Control 1
-#define SSI_O_DR                0x00000008  // SSI Data
-#define SSI_O_SR                0x0000000C  // SSI Status
-#define SSI_O_CPSR              0x00000010  // SSI Clock Prescale
-#define SSI_O_IM                0x00000014  // SSI Interrupt Mask
-#define SSI_O_RIS               0x00000018  // SSI Raw Interrupt Status
-#define SSI_O_MIS               0x0000001C  // SSI Masked Interrupt Status
-#define SSI_O_ICR               0x00000020  // SSI Interrupt Clear
-#define SSI_O_DMACTL            0x00000024  // SSI DMA Control
+// #define SSI_O_CR0               0x00000000  // SSI Control 0
+// #define SSI_O_CR1               0x00000004  // SSI Control 1
+// #define SSI_O_DR                0x00000008  // SSI Data
+// #define SSI_O_SR                0x0000000C  // SSI Status
+// #define SSI_O_CPSR              0x00000010  // SSI Clock Prescale
+// #define SSI_O_IM                0x00000014  // SSI Interrupt Mask
+// #define SSI_O_RIS               0x00000018  // SSI Raw Interrupt Status
+// #define SSI_O_MIS               0x0000001C  // SSI Masked Interrupt Status
+// #define SSI_O_ICR               0x00000020  // SSI Interrupt Clear
+// #define SSI_O_DMACTL            0x00000024  // SSI DMA Control
 
 //*****************************************************************************
 //
 // The following are defines for the bit fields in the SSI_O_CR1 register.
 //
 //*****************************************************************************
-#define SSI_CR1_EOT             0x00000010  // End of Transmission
+// #define SSI_CR1_EOT             0x00000010  // End of Transmission
 
 //*****************************************************************************
 //
 // The following are defines for the bit fields in the SSI_O_DMACTL register.
 //
 //*****************************************************************************
-#define SSI_DMACTL_TXDMAE       0x00000002  // Transmit DMA Enable
-#define SSI_DMACTL_RXDMAE       0x00000001  // Receive DMA Enable
+// #define SSI_DMACTL_TXDMAE       0x00000002  // Transmit DMA Enable
+// #define SSI_DMACTL_RXDMAE       0x00000001  // Receive DMA Enable
 
 /*****************************   Constants   *******************************/
 
@@ -73,21 +76,71 @@
 
 /*****************************   Functions   *******************************/
 
+void spi_enable( void )
+/*****************************************************************************
+*   Function : Enables SPI.
+*****************************************************************************/
+{
+	SET_BIT(SSI0_CR1_R, SSE_BIT);
+}
 
+void spi_disable( void )
+/*****************************************************************************
+*   Function : Disables SPI.
+*****************************************************************************/
+{
+	CLEAR_BIT(SSI0_CR1_R, SSE_BIT);
+}
 
 void init_spi()
 /*****************************************************************************
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	INT8U dummy;
+	
+	
 	// Pin setup
 	// Enable port A.
+	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOA;
+	dummy = SYSCTL_RCGC2_R;
+	
 	// HW control, Set pins in GPIO_PORTA_AFSEL_R
+	SET_BIT(GPIO_PORTA_AFSEL_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_AFSEL_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_AFSEL_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_AFSEL_R, SSI_TX);
+	
 	// Configure PAD: 	2mA drive: set pins in GPIO_PORTA_DR2R_R
+	SET_BIT(GPIO_PORTA_DR2R_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_DR2R_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_DR2R_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_DR2R_R, SSI_TX);
 	//					Clear pins in GPIO_PORTA_ODR_R
+	CLEAR_BIT(GPIO_PORTA_ODR_R, SSI_CLK);
+	CLEAR_BIT(GPIO_PORTA_ODR_R, SSI_SS);
+	CLEAR_BIT(GPIO_PORTA_ODR_R, SSI_RX);
+	CLEAR_BIT(GPIO_PORTA_ODR_R, SSI_TX);
 	//					Clear pins in GPIO_PORTA_PUR_R
+	CLEAR_BIT(GPIO_PORTA_PUR_R, SSI_CLK);
+	CLEAR_BIT(GPIO_PORTA_PUR_R, SSI_SS);
+	CLEAR_BIT(GPIO_PORTA_PUR_R, SSI_RX);
+	CLEAR_BIT(GPIO_PORTA_PUR_R, SSI_TX);
 	//					Clear pins in GPIO_PORTA_PDR_R
+	CLEAR_BIT(GPIO_PORTA_PDR_R, SSI_CLK);
+	CLEAR_BIT(GPIO_PORTA_PDR_R, SSI_SS);
+	CLEAR_BIT(GPIO_PORTA_PDR_R, SSI_RX);
+	CLEAR_BIT(GPIO_PORTA_PDR_R, SSI_TX);
 	//					Set pins in GPIO_PORTA_DEN_R
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_DEN_R, SSI_TX);
+	
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_CLK);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_SS);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_RX);
+	SET_BIT(GPIO_PORTA_DIR_R, SSI_TX);
 	
 	
 	// SSI setup
@@ -97,18 +150,24 @@ void init_spi()
 	// SSI0_CPSR_R 		== SSICPSR
 	// SSI0_CR0_R		== SSICR0
 	
+	// Enable SSI Clock
+	SYSCTL_RCGC1_R = SYSCTL_RCGC1_SSI0;
+	
 	// 1 Disable SSI
 		// Clear SSI bit in SSICR1
+	spi_disable();
 	
 	// 2 Select master or slave
 		// For master operations, set the SSICR1 register to 0x0000.0000
-			
+	SSI0_CR1_R = 0x00000000;
+	
 	// 3 Configure clock
 		// 50*10^6/(4*(1+12))
 		// SysClock * 10^6 / (CPSDVSR * (1 + SCR))
 		// (50 * (10^6)) / (4 * (1 + 9)) = 1 250 000 bit/sec
 			
 		// SSICPSR = CPSDVSR = 0x4
+	SSI0_CPSR_R = 0x4;
 		
 	// 4 Write to SSICR0:
 		// SCR: 	[15:8]
@@ -116,22 +175,13 @@ void init_spi()
 		// SPO:		[6]
 		// FRF:		[5:4] FrameFormat, 0x0 for Freescale
 		// DSS:		[3:0] Datasize
+		// SSI0_CR0_R = 0b00000000 0 0 00 0000
+	SSI0_CR0_R = 0b0000100111001000;
+				 //0b00000100 1 1 00 1111
 			
 	// 5 Enable SSI
 			// Set SSI bit in SSICR1
-			
-	INT8U dummy;
-	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOA; // Enable port 
-	dummy = SYSCTL_RCGC2_R;
-
-	SET_BIT(GPIO_PORTA_DIR_R, SSI_CLK);
-	SET_BIT(GPIO_PORTA_DEN_R, SSI_CLK);
-	SET_BIT(GPIO_PORTA_DIR_R, SSI_SS);
-	SET_BIT(GPIO_PORTA_DEN_R, SSI_SS);
-	SET_BIT(GPIO_PORTA_DIR_R, SSI_RX);
-	SET_BIT(GPIO_PORTA_DEN_R, SSI_RX);
-	SET_BIT(GPIO_PORTA_DIR_R, SSI_TX);
-	SET_BIT(GPIO_PORTA_DEN_R, SSI_TX);
+	spi_enable();
 
 
 }

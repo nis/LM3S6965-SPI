@@ -13,6 +13,8 @@
 #include "semphr.h"
 #include "cpu/cpu.h"
 #include "led/led.h"
+#include "spi/spi.h"
+#include "inc/lm3s6965.h"
 //#include "pot/pot.h"
 #include "buttons/buttons.h"
 
@@ -28,6 +30,7 @@ static void setupHardware(void) {
 	init_leds();
 	//init_pot();
 	init_buttons();
+	init_spi();
 	enable_global_int();
 	// Warning: If you do not initialize the hardware clock, the timings will be inaccurate
 }
@@ -42,7 +45,7 @@ void vUserTask1(void *pvParameters) {
 		button_task();
 		
 		INT8U up_clicks = get_up_clicks();
-		INT8U down_clicks = get_down_clicks();
+		//INT8U down_clicks = get_down_clicks();
 		
 		if(up_clicks)
 		{
@@ -64,6 +67,19 @@ void vUserTask2(void *pvParameters) {
 }
 
 /**
+ * Counter sent out via SPI.
+ */
+void vUserTask3(void *pvParameters) {
+	INT8U counter = 0;
+	
+	while (1) {
+		SSI0_DR_R = counter;
+		counter++;
+		vTaskDelay(250) ;
+	}
+}
+
+/**
  * Program entry point 
  */
 int main(void) {
@@ -73,8 +89,8 @@ int main(void) {
 	 * Start the tasks defined within this file/specific to this demo. 
 	 */
 	xTaskCreate( vUserTask1, ( signed portCHAR * ) "Task1", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
-
 	xTaskCreate( vUserTask2, ( signed portCHAR * ) "Task2", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vUserTask3, ( signed portCHAR * ) "Task3", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	/* 
 	 * Start the scheduler. 
 	 */
