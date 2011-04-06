@@ -170,9 +170,9 @@ void init_spi()
 	SSI0_CPSR_R = 0x4;
 		
 	// 4 Write to SSICR0:
-		// SCR: 	[15:8]
-		// SPH: 	[7]
-		// SPO:		[6]
+		// SCR: 	[15:8] SSI Serial Clock Rate
+		// SPH: 	[7] SSI Serial Clock Phase
+		// SPO:		[6]	SSI Serial Clock Polarity
 		// FRF:		[5:4] FrameFormat, 0x0 for Freescale
 		// DSS:		[3:0] Datasize
 		// SSI0_CR0_R = 0b00000000 0 0 00 0000
