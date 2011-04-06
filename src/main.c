@@ -15,6 +15,7 @@
 #include "led/led.h"
 #include "spi/spi.h"
 #include "inc/lm3s6965.h"
+#include "lcd/lcd.h"
 //#include "pot/pot.h"
 #include "buttons/buttons.h"
 
@@ -31,6 +32,7 @@ static void setupHardware(void) {
 	//init_pot();
 	init_buttons();
 	init_spi();
+	init_lcd_write_task();
 	enable_global_int();
 	// Warning: If you do not initialize the hardware clock, the timings will be inaccurate
 }
@@ -80,6 +82,38 @@ void vUserTask3(void *pvParameters) {
 }
 
 /**
+ * LCD task
+ */
+void vUserTask4(void *pvParameters) {
+	INT8U counter = 0;
+	
+	while (1) {
+		counter++;
+		
+		INT8U c1 = int_to_ascii((counter / 100) % 10);
+		INT8U c2 = int_to_ascii((counter / 10) % 10);
+		INT8U c3 = int_to_ascii((counter / 1) % 10);
+		
+		if(c1 == 0x30)
+		{
+			c1 = 0x20;
+			if(c2 == 0x30)
+			{
+				c2 = 0x20;
+			}
+		}
+		
+		lcd_add_char_to_buffer(5, 0, c1);
+		lcd_add_char_to_buffer(6, 0, c2);
+		lcd_add_char_to_buffer(7, 0, c3);
+		
+		lcd_write_task();
+		
+		vTaskDelay(10) ;
+	}
+}
+
+/**
  * Program entry point 
  */
 int main(void) {
@@ -91,6 +125,7 @@ int main(void) {
 	xTaskCreate( vUserTask1, ( signed portCHAR * ) "Task1", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( vUserTask2, ( signed portCHAR * ) "Task2", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	xTaskCreate( vUserTask3, ( signed portCHAR * ) "Task3", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
+	xTaskCreate( vUserTask4, ( signed portCHAR * ) "Task4", USERTASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );
 	/* 
 	 * Start the scheduler. 
 	 */
