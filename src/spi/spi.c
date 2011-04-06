@@ -80,6 +80,17 @@ void init_spi()
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
+	// Pin setup
+	// Enable port A.
+	// HW control, Set pins in GPIO_PORTA_AFSEL_R
+	// Configure PAD: 	2mA drive: set pins in GPIO_PORTA_DR2R_R
+	//					Clear pins in GPIO_PORTA_ODR_R
+	//					Clear pins in GPIO_PORTA_PUR_R
+	//					Clear pins in GPIO_PORTA_PDR_R
+	//					Set pins in GPIO_PORTA_DEN_R
+	
+	
+	// SSI setup
 	
 	// SYSCTL_RCGC1_R 	== RCGC1
 	// SSI0_CR1_R 		== SSICR1
